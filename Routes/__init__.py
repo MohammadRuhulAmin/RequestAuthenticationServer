@@ -1,0 +1,1 @@
+from Routes.protectedRoutes import ProtectedResources
