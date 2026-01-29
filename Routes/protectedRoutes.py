@@ -1,5 +1,5 @@
 from fastapi import Depends
-from Settings.keycloakSettings import oauth2_scheme
+from Settings.variableSettings import oauth2_scheme
 from Authentication.Auth import KeycloakAuth
 
 class ProtectedResources:

@@ -1,4 +1,4 @@
-from Settings.keycloakSettings import keycloakVariable,oauth2_scheme
+from Settings.variableSettings import keycloakVariable,oauth2_scheme,FastApiVariable
 from Authentication.Auth import KeycloakAuth
 from Routes.protectedRoutes import ProtectedResources
 from fastapi import FastAPI, Depends, HTTPException
@@ -9,7 +9,8 @@ app = FastAPI()
 
 Kauth = KeycloakAuth(
     keycloakUrl=keycloakVariable.keycloakUrl,
-    realmName=keycloakVariable.realmName
+    realmName=keycloakVariable.realmName,
+    allowedOriginUrl=FastApiVariable.allowedOriginUrl
 )
 
 @app.get("/hello")

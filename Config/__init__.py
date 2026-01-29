@@ -1,1 +1,2 @@
 from Config.KeycloakConfig import KeycloakConfigClass
+from Config.FastApiConfig import FastApiConfig
