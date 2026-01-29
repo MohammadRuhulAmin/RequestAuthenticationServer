@@ -52,8 +52,8 @@ class KeycloakAuth:
     def checkAllowedOrigins(self,allowedOriginsList: list)-> bool:
         try:
             for allowedOrigin in allowedOriginsList:
-                if allowedOrigin == self.allowedOriginUrl:
-                    return True 
+                if (allowedOrigin).strip() == self.allowedOriginUrl:
+                    return True
             return False
         except Exception as E:
             print(str(E))
@@ -70,7 +70,6 @@ class KeycloakAuth:
             print("allowed-origins: ", tokenDetails.get("payload").get("json").get("allowed-origins"))
             allowedOriginList = tokenDetails.get("payload").get("json").get("allowed-origins")
             if self.checkAllowedOrigins(allowedOriginList) == False:raise HTTPException(401, "Allowed Origin Missmached")
-
             public_key = jwk.construct(key_data).public_key()
             payload = jwt.decode(
                 token,
