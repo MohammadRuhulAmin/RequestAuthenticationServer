@@ -12,7 +12,6 @@ class IsForbiddenRequestToken:
             return False
     def checkAllowedRole(self)-> bool:
         try:
-            print("role list: ", self.accessRoleList)
             return any(alwdRole.strip() == self.requiredRole for alwdRole  in self.accessRoleList[0])
         except Exception:
             return False
