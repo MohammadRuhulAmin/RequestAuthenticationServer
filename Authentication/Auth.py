@@ -4,7 +4,7 @@ import json
 from typing import Dict, Any, List
 from fastapi import HTTPException
 from jose import JWTError, jwt, jwk
-
+from Authentication.IsForbiddenRequest import IsForbiddenRequestToken
 class KeycloakAuth:
     def __init__(self, keycloakUrl: str, realmName: str, allowedOriginUrl):
         self.keycloakUrl = keycloakUrl
@@ -33,7 +33,6 @@ class KeycloakAuth:
     def tokenParser(self, token: str) -> Dict[str, Any]:
         try:
             header_b64, payload_b64, signature_b64 = token.split(".")
-
             return {
                 "header": {
                     "base64": header_b64,
@@ -49,7 +48,7 @@ class KeycloakAuth:
             }
         except Exception as e:
             raise HTTPException(400, f"Invalid JWT format: {e}")
-    def checkAllowedOrigins(self,allowedOriginsList: list)-> bool:
+    def checkIfRequestIsForbidden(self,allowedOriginsList: list)-> bool:
         try:
             for allowedOrigin in allowedOriginsList:
                 if (allowedOrigin).strip() == self.allowedOriginUrl:
@@ -57,11 +56,13 @@ class KeycloakAuth:
             return False
         except Exception as E:
             print(str(E))
+    
+
     def decodeJwt(self, token: str) -> Dict[str, Any]:
         try:
             tokenDetails = self.tokenParser(token)
             print(json.dumps(tokenDetails, indent=2))
-            keys = self.getKeycloakPublicKey()
+            keys = self.getKeycloakPublicKey() 
             headers = jwt.get_unverified_header(token)
             kid = headers.get("kid")
             if not kid: raise HTTPException(401, "Missing kid in token header")
@@ -69,7 +70,12 @@ class KeycloakAuth:
             if not key_data:raise HTTPException(401, "Public key not found")
             print("allowed-origins: ", tokenDetails.get("payload").get("json").get("allowed-origins"))
             allowedOriginList = tokenDetails.get("payload").get("json").get("allowed-origins")
-            if self.checkAllowedOrigins(allowedOriginList) == False:raise HTTPException(401, "Allowed Origin Missmached")
+            forbiddenRequestChecking = IsForbiddenRequestToken(
+                requiredOrigin=self.allowedOriginUrl,
+                allowedOriginsList=allowedOriginList,
+                accessRole=None 
+            )
+            if not forbiddenRequestChecking.checkAllowedOrigin():raise HTTPException(401, "Allowed Origin Missmached")
             public_key = jwk.construct(key_data).public_key()
             payload = jwt.decode(
                 token,
@@ -78,8 +84,6 @@ class KeycloakAuth:
                 audience="account",   # better: your client_id
                 issuer=f"{self.keycloakUrl}/realms/{self.realmName}"
             )
-
             return payload
-
         except JWTError:
             raise HTTPException(401, "Invalid or expired token")
