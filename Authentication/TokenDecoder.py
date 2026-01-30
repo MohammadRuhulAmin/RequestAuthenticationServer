@@ -5,11 +5,13 @@ from typing import Dict, Any, List
 from fastapi import HTTPException
 from jose import JWTError, jwt, jwk
 from Authentication.RequestForbiddenHandler import IsForbiddenRequestToken
+
 class KeycloakAuth:
-    def __init__(self, keycloakUrl: str, realmName: str, allowedOriginUrl):
+    def __init__(self, keycloakUrl: str, realmName: str, allowedOriginUrl: str, allowedRole: str):
         self.keycloakUrl = keycloakUrl
         self.realmName = realmName
         self.allowedOriginUrl = allowedOriginUrl
+        self.allowedRole = allowedRole
 
     def generateJwksUrl(self) -> str:
         return f"{self.keycloakUrl}/realms/{self.realmName}/protocol/openid-connect/certs"
@@ -59,13 +61,16 @@ class KeycloakAuth:
             key_data = next((k for k in keys if k["kid"] == kid), None)
             if not key_data:raise HTTPException(401, "Public key not found")
             print("allowed-origins: ", tokenDetails.get("payload").get("json").get("allowed-origins"))
+            allowedRoleList = tokenDetails.get("payload").get("json").get("resource_access").get("account").get("roles")
             allowedOriginList = tokenDetails.get("payload").get("json").get("allowed-origins")
             forbiddenRequestChecking = IsForbiddenRequestToken(
                 requiredOrigin=self.allowedOriginUrl,
                 allowedOriginsList=allowedOriginList,
-                accessRole=None 
+                accessRoleList=allowedRoleList,
+                requiredRole=self.allowedRole
             )
-            if not forbiddenRequestChecking.checkAllowedOrigin():raise HTTPException(401, "Allowed Origin Missmached")
+            if not forbiddenRequestChecking.checkAllowedOrigin():raise HTTPException(403, "Allowed Origin Missmached, Access Forbidden")
+            if not forbiddenRequestChecking.checkAllowedRole(): raise HTTPException(403, "Allowed Role Missmatched, Access Forbidden")
             public_key = jwk.construct(key_data).public_key()
             payload = jwt.decode(
                 token,

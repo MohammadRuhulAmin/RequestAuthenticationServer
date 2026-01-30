@@ -19,5 +19,6 @@ oauth2_scheme = OAuth2PasswordBearer(
 )
 
 FastApiVariable = FastApiConfig(
-    allowedOriginUrl=os.getenv("ALLOWED_ORIGIN_URL")
+    allowedOriginUrl=os.getenv("ALLOWED_ORIGIN_URL"),
+    allowedRole = os.getenv("ALLOWED_ROLE")
 )

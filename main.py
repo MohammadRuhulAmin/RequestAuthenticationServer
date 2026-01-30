@@ -10,7 +10,8 @@ app = FastAPI()
 Kauth = KeycloakAuth(
     keycloakUrl=keycloakVariable.keycloakUrl,
     realmName=keycloakVariable.realmName,
-    allowedOriginUrl=FastApiVariable.allowedOriginUrl
+    allowedOriginUrl=FastApiVariable.allowedOriginUrl,
+    allowedRole = FastApiVariable.allowedRole
 )
 
 @app.get("/hello")
