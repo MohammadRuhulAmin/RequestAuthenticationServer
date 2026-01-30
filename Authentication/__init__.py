@@ -1,2 +1,2 @@
-from Authentication.Auth import KeycloakAuth
-from Authentication.IsForbiddenRequest import IsForbiddenRequestToken
+from Authentication.TokenDecoder import KeycloakAuth
+from Authentication.RequestForbiddenHandler import IsForbiddenRequestToken

@@ -1,6 +1,6 @@
 from fastapi import Depends
 from Settings.variableSettings import oauth2_scheme
-from Authentication.Auth import KeycloakAuth
+from Authentication.TokenDecoder import KeycloakAuth
 
 class ProtectedResources:
     def __init__(self, kauth: KeycloakAuth):

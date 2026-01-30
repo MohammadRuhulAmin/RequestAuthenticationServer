@@ -4,7 +4,7 @@ import json
 from typing import Dict, Any, List
 from fastapi import HTTPException
 from jose import JWTError, jwt, jwk
-from Authentication.IsForbiddenRequest import IsForbiddenRequestToken
+from Authentication.RequestForbiddenHandler import IsForbiddenRequestToken
 class KeycloakAuth:
     def __init__(self, keycloakUrl: str, realmName: str, allowedOriginUrl):
         self.keycloakUrl = keycloakUrl
@@ -48,16 +48,6 @@ class KeycloakAuth:
             }
         except Exception as e:
             raise HTTPException(400, f"Invalid JWT format: {e}")
-    def checkIfRequestIsForbidden(self,allowedOriginsList: list)-> bool:
-        try:
-            for allowedOrigin in allowedOriginsList:
-                if (allowedOrigin).strip() == self.allowedOriginUrl:
-                    return True
-            return False
-        except Exception as E:
-            print(str(E))
-    
-
     def decodeJwt(self, token: str) -> Dict[str, Any]:
         try:
             tokenDetails = self.tokenParser(token)
